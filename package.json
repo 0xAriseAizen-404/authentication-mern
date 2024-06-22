@@ -1,0 +1,27 @@
+{
+  "name": "authentication-mern",
+  "version": "1.0.0",
+  "main": "backend/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node backend/index.js",
+    "backend": "nodemon backend/index.js",
+    "frontend": "yarn --cwd frontend run dev",
+    "dev": "concurrently \"yarn run backend\" \"yarn run frontend\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "concurrently": "^8.2.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.4.3"
+  }
+}
