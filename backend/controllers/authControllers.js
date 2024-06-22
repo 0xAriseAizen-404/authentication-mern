@@ -1,6 +1,7 @@
 import { asyncHandler } from "../middlewares/asyncHandler.js";
-import User from "../models/user.model.js";
+import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
+import { generateToken } from "../utils/createJWTtoken.js";
 
 export const signUpUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
@@ -26,7 +27,7 @@ export const signUpUser = asyncHandler(async (req, res) => {
 
     const newUser = new User({ username, email, password: hashedPassword });
     await newUser.save();
-    // generateToken(res, newUser._id)
+    generateToken(res, newUser._id);
     newUser.password = null;
     res.status(200).json(newUser);
   } catch (error) {
@@ -48,7 +49,7 @@ export const signInUser = asyncHandler(async (req, res) => {
         existingUser.password
       );
       if (isPasswordCorrect) {
-        // generateToken(res, existingUser._id)
+        generateToken(res, existingUser._id);
         existingUser.password = null;
         res.status(200).json(existingUser);
       } else {

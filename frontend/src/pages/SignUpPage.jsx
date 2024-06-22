@@ -40,7 +40,8 @@ export const SignUpPage = () => {
       setLoading(true);
       User.parse(formData);
       setErrMessage("");
-      await axios.post("/api/auth/signup", formData);
+      const resposnse = await axios.post("/api/auth/signup", formData);
+      console.log(resposnse.data);
       toast.success("Registered successfully", { position: "bottom-right" });
     } catch (error) {
       setError(true);

@@ -1,8 +1,8 @@
 import express, { urlencoded } from "express";
 import connectDB from "./config/dbConnection.js";
 import cors from "cors";
-import userRoutes from "./routes/user.route.js";
-import authRoutes from "./routes/auth.route.js";
+import userRoutes from "./routes/userRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import dotenv from "dotenv";
 
 const app = express();
