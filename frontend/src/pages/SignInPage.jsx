@@ -10,6 +10,7 @@ import {
   signInSuccess,
 } from "../redux/user/userSlice";
 import { useSelector, useDispatch } from "react-redux";
+import { OAuth } from "../components/OAuth";
 // import { SuccessToast } from "../common/Toasts/SuccessToast";
 
 export const SignInPage = () => {
@@ -84,6 +85,7 @@ export const SignInPage = () => {
         <button type="submit" className="shad-button_primary">
           {loading ? "Loading..." : "Sign In"}
         </button>
+        <OAuth />
       </form>
       <p className="text-light-3 text-center">
         {`New User? `}

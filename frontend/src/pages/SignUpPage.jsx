@@ -3,6 +3,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { z } from "zod";
+import { OAuth } from "../components/OAuth";
 
 export const SignUpPage = () => {
   const [loading, setLoading] = useState(false);
@@ -101,6 +102,7 @@ export const SignUpPage = () => {
         >
           {loading ? "Submitting..." : "SignUp"}
         </button>
+        <OAuth />
       </form>
       <p className="text-light-3 text-center">
         {`Already have an account? `}

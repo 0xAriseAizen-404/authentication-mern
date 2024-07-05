@@ -17,6 +17,10 @@ export const signUpUser = asyncHandler(async (req, res) => {
     if (!emailRegex.test(email))
       return res.status(400).json({ message: "Invalid email format" });
 
+    const userNameExists = await User.findOne({ username });
+    if (userNameExists)
+      return res.status(400).json({ message: "username already exists" });
+
     const userExists = await User.findOne({ email });
     if (userExists)
       return res.status(400).json({ message: "user already exists" });
@@ -61,5 +65,47 @@ export const signInUser = asyncHandler(async (req, res) => {
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ message: error.message });
+  }
+});
+
+export const signInWithGoogle = asyncHandler(async (req, res) => {
+  const { name, email, photoURL } = req.body;
+
+  // Validate incoming data
+  if (!name || !email || !photoURL) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  try {
+    const userExists = await User.findOne({ email });
+
+    if (userExists) {
+      generateToken(res, userExists._id);
+      userExists.password = null; // Ensure password is not sent in response
+      return res.status(200).json(userExists);
+    } else {
+      const generatePassword =
+        Math.random().toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8);
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(generatePassword, salt);
+
+      const newUser = new User({
+        username: `${name.split(" ").join("").toLowerCase()}${Math.floor(
+          Math.random() * 10000
+        )}`,
+        email,
+        profileImage: photoURL,
+        password: hashedPassword, // Correct spelling error
+      });
+
+      await newUser.save();
+      generateToken(res, newUser._id);
+      newUser.password = null; // Ensure password is not sent in response
+      return res.status(200).json(newUser);
+    }
+  } catch (error) {
+    console.error("Error during Google sign-in", error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 });
