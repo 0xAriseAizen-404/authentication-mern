@@ -3,11 +3,17 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { z } from "zod";
+import {
+  signInStart,
+  signInFailure,
+  signInSuccess,
+} from "../redux/user/userSlice";
+import { useSelector, useDispatch } from "react-redux";
 // import { SuccessToast } from "../common/Toasts/SuccessToast";
 
 export const SignInPage = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const dispatch = useDispatch();
+  const { error, loading } = useSelector((state) => state.user);
 
   const [formData, setFormData] = useState({
     email: "vamsi@gmail.com",
@@ -30,7 +36,7 @@ export const SignInPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
+      dispatch(signInStart());
       SignInSchema.parse(formData);
       setErrMessage("");
       const response = await axios.post("/api/auth/signin", formData);
@@ -39,16 +45,15 @@ export const SignInPage = () => {
         position: "bottom-right",
         duration: 2000,
       });
+      dispatch(signInSuccess(response.data));
       // SuccessToast({ message: "Logged in successfully" });
     } catch (error) {
-      setError(true);
+      dispatch(signInFailure(error.message));
       if (error instanceof z.ZodError) {
         setErrMessage(error.errors[0].message);
       } else {
         toast.error(error.response.data.message);
       }
-    } finally {
-      setLoading(false);
     }
   };
 
