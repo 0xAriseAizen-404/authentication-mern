@@ -3,6 +3,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { z } from "zod";
+import { useNavigate } from "react-router-dom";
 import {
   signInStart,
   signInFailure,
@@ -13,6 +14,7 @@ import { useSelector, useDispatch } from "react-redux";
 
 export const SignInPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { error, loading } = useSelector((state) => state.user);
 
   const [formData, setFormData] = useState({
@@ -46,6 +48,7 @@ export const SignInPage = () => {
         duration: 2000,
       });
       dispatch(signInSuccess(response.data));
+      navigate("/");
       // SuccessToast({ message: "Logged in successfully" });
     } catch (error) {
       dispatch(signInFailure(error.message));
