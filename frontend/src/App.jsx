@@ -7,6 +7,7 @@ import { Profile } from "./pages/Profile";
 import { Suspense } from "react";
 import { Header } from "./components/Header";
 import { Toaster } from "react-hot-toast";
+import { PrivateRoute } from "./components/PrivateRoute";
 
 function App() {
   return (
@@ -18,7 +19,9 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route element={<PrivateRoute />}>
+            <Route path="/profile" element={<Profile />} />
+          </Route>
         </Routes>
       </Suspense>
       <Toaster />
