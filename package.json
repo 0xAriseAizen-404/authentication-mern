@@ -8,7 +8,7 @@
     "backend": "nodemon backend/index.js",
     "frontend": "yarn --cwd frontend run dev",
     "dev": "concurrently \"yarn run backend\" \"yarn run frontend\"",
-    "build": "yarn install && yarn install --cwd frontend && yarn run build --cwd frontend"
+    "build": "yarn install && yarn --cwd frontend install && yarn --cwd frontend build"
   },
   "keywords": [],
   "author": "",
