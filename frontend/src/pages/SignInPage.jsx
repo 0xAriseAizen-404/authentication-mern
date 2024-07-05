@@ -43,7 +43,7 @@ export const SignInPage = () => {
       SignInSchema.parse(formData);
       setErrMessage("");
       const response = await axios.post("/api/auth/signin", formData);
-      console.log(response.data);
+      // console.log(response.data);
       toast.success("Logged in successfully", {
         position: "bottom-right",
         duration: 2000,

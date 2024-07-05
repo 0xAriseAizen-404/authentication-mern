@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useRef, useState } from "react";
 import {
   getDownloadURL,
@@ -8,6 +8,15 @@ import {
 } from "firebase/storage";
 import { app } from "../firebase";
 import axios from "axios";
+import {
+  updateUserStart,
+  updateUserFailure,
+  updateUserSuccess,
+  signOut,
+  deleteUserStart,
+  deleteUserSuccess,
+  deleteUserFailure,
+} from "../redux/user/userSlice";
 
 export const Profile = () => {
   const fileRef = useRef(null);
@@ -20,7 +29,8 @@ export const Profile = () => {
     password: "",
     profileImage: "",
   });
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, loading } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (currentUser) {
@@ -35,6 +45,8 @@ export const Profile = () => {
 
   useEffect(() => {
     const handleImageUpload = async () => {
+      if (!image) return;
+
       const storage = getStorage(app);
       const fileName = new Date().getTime() + image.name;
       const storageRef = ref(storage, fileName);
@@ -60,9 +72,7 @@ export const Profile = () => {
         }
       );
     };
-    if (image) {
-      handleImageUpload();
-    }
+    handleImageUpload();
   }, [image]);
 
   const handleInputChange = (e) => {
@@ -72,13 +82,32 @@ export const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    dispatch(updateUserStart());
     try {
-      // Update user information via API call
-      const res = await axios.put("/api/user/update", formData);
-      console.log("User updated successfully:", res.data);
+      const res = await axios.put(
+        `/api/user/update/${currentUser._id}`,
+        formData
+      );
+      dispatch(updateUserSuccess(res.data));
     } catch (error) {
-      console.error("User update error:", error);
+      dispatch(updateUserFailure(error.message));
     }
+  };
+
+  const handleDeleteAccount = async () => {
+    dispatch(deleteUserStart());
+    try {
+      await axios.delete(`/api/user/delete/${currentUser._id}`);
+      dispatch(deleteUserSuccess());
+      // Optionally, redirect to another page or clear user state
+    } catch (error) {
+      dispatch(deleteUserFailure(error.message));
+    }
+  };
+
+  const handleSignOut = () => {
+    dispatch(signOut());
+    // Optionally, redirect to login page
   };
 
   return (
@@ -93,7 +122,7 @@ export const Profile = () => {
           onChange={(e) => setImage(e.target.files[0])}
         />
         <img
-          src={formData.profileImage}
+          src={formData.profileImage || currentUser.profileImage}
           alt="profile"
           className="mx-auto h-24 w-24 rounded-full object-contain cursor-pointer"
           onClick={() => fileRef.current.click()}
@@ -132,13 +161,18 @@ export const Profile = () => {
         <button
           type="submit"
           className="shad-button_primary text-white p-2 rounded"
+          disabled={loading}
         >
-          Update
+          {loading ? "Updating..." : "Update"}
         </button>
       </form>
       <div className="flex justify-between text-red-500 mt-4">
-        <p className="cursor-pointer">Delete Account</p>
-        <p className="cursor-pointer">Sign Out</p>
+        <p className="cursor-pointer" onClick={handleDeleteAccount}>
+          {loading ? "Deleting..." : "Delete Account"}
+        </p>
+        <p className="cursor-pointer" onClick={handleSignOut}>
+          Sign Out
+        </p>
       </div>
     </div>
   );
