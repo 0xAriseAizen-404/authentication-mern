@@ -2,6 +2,10 @@ import { asyncHandler } from "../middlewares/asyncHandler.js";
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/createJWTtoken.js";
+import nodemailer from "nodemailer";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
 export const signUpUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
@@ -106,4 +110,81 @@ export const signInWithGoogle = asyncHandler(async (req, res) => {
     console.error("Google sign-in error:", error.message);
     return res.status(500).json({ message: "Internal Server Error" });
   }
+});
+
+export const signOut = asyncHandler(async (req, res) => {
+  res.cookie("jwt", "", {
+    httpOnly: true,
+    expires: new Date(0),
+  });
+  res.status(200).json({ message: "SignOut out successfully" });
+});
+
+export const forgetPassword = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "10m",
+    });
+
+    // Send the token to the user's email
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      post: 465,
+      secure: true,
+      logger: true,
+      debug: true,
+      secureConnection: false,
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD_APP_EMAIL,
+      },
+      tls: {
+        rejectUnauthorized: true,
+      },
+    });
+
+    // Email configuration
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: req.body.email,
+      subject: "Reset Password",
+      html: `<h1>Reset Your Password</h1>
+    <p>Click on the following link to reset your password:</p>
+    <a href="http://localhost:5173/reset-password/${token}">http://localhost:5173/reset-password/${token}</a>
+    <p>The link will expire in 10 minutes.</p>
+    <p>If you didn't request a password reset, please ignore this email.</p>`,
+    };
+
+    // Send the email
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        return res.status(500).send({ message: err.message });
+      }
+      res.status(200).send({ message: "Email sent" });
+    });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+});
+
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const user = await User.findById(decoded.userId);
+
+  if (!user) {
+    return res.status(404).send({ message: "User not found" });
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const password = await bcrypt.hash(req.body.password, salt);
+
+  user.password = password;
+  await user.save();
+
+  res.status(200).send({ message: "Password reset successfully" });
 });

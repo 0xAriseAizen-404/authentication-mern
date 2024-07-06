@@ -19,8 +19,8 @@ export const SignInPage = () => {
   const { error, loading } = useSelector((state) => state.user);
 
   const [formData, setFormData] = useState({
-    email: "vamsi@gmail.com",
-    password: "vamsi@123",
+    email: "", // vamsi@gmail.com
+    password: "", // vamsi@123
   });
 
   const [errMessage, setErrMessage] = useState("");
@@ -87,12 +87,19 @@ export const SignInPage = () => {
         </button>
         <OAuth />
       </form>
-      <p className="text-light-3 text-center">
-        {`New User? `}
-        <Link to="/sign-up" className="underline">
-          Register
-        </Link>
-      </p>
+      <div className="flex justify-between">
+        <p className="text-light-3 text-center">
+          {`New User? `}
+          <Link to="/sign-up" className="underline">
+            Register
+          </Link>
+        </p>
+        <p className="text-light-3 text-center">
+          <Link to="/forgot-pass" className="underline">
+            Forgot Password
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };

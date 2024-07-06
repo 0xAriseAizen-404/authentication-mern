@@ -17,6 +17,7 @@ import {
   deleteUserSuccess,
   deleteUserFailure,
 } from "../redux/user/userSlice";
+import toast from "react-hot-toast";
 
 export const Profile = () => {
   const fileRef = useRef(null);
@@ -105,8 +106,23 @@ export const Profile = () => {
     }
   };
 
-  const handleSignOut = () => {
-    dispatch(signOut());
+  const handleSignOut = async () => {
+    try {
+      const res = await axios.post("/api/auth/signout");
+      toast.success(res.data.message, {
+        position: "bottom-right",
+        duration: 2000,
+      });
+      dispatch(signOut());
+    } catch (error) {
+      if (error.response) {
+        console.log(error.response.data);
+      } else if (error.request) {
+        console.log(error.request);
+      } else {
+        console.log("Error", error.message);
+      }
+    }
     // Optionally, redirect to login page
   };
 

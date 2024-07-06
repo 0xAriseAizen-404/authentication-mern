@@ -42,7 +42,7 @@ export const SignUpPage = () => {
       User.parse(formData);
       setErrMessage("");
       const resposnse = await axios.post("/api/auth/signup", formData);
-      console.log(resposnse.data);
+      // console.log(resposnse.data);
       toast.success("Registered successfully", { position: "bottom-right" });
     } catch (error) {
       setError(true);
